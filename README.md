@@ -17,5 +17,5 @@ This application creates, accesses, modifies, and adds Songs to a user's Spotify
   7. You can then add the playlist to their Spotify Account.
   8. Enjoy your newly created Spotify playlist :white_check_mark:
 
-* I will be updating the design of the application as time allows and will be performing changes based on the project's needs*
+* I will be updating the design of the application as time allows and will be performing changes based on the project's needs *
      
