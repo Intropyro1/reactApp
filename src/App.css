@@ -1,0 +1,65 @@
+.App-display {
+    background-color: black;
+}
+
+.searchBarSection {
+    width: 32rem;
+    height: 3rem; 
+    color: black
+}
+
+.searchResultsSection {
+    width: 500px;
+}
+
+.searchResults-display {
+    width: 500px;
+}
+
+.listModifications {
+    background-Color: black;
+    color: white;
+    border: solid 1rem grey;
+    box-shadow: inset 10px green;
+}
+.playlistSection {
+    position: absolute;
+    bottom: 34rem;
+    height: 200px;
+    margin-right: 400px;
+}
+
+.trackDisplayDiv {
+    position: absolute;
+    top: 182px;
+    left: 485px;
+    display: flex;
+}
+.trackDisplaySection {
+    position: relative;
+    place-items: flex-end;
+    flex-flow: column;
+    align-items: center;
+    margin-left: 150px;
+}
+
+.imageDisplay {
+    width: 200px;
+    height: 200px;
+}
+
+.userPlaylistDisplay {
+    color: white;
+    position: absolute;
+    top: 595px;
+    left: 585px;
+    display: flex;
+    background-color: #198754;
+    border-radius: 5px;
+}
+ul.userPlaylistDisplay {
+    list-style: none;
+}
+h2.userPlaylistDisplay {
+    margin-left: 1rem;
+}
