@@ -19,14 +19,14 @@ interface Track {
 
 // Declare missing variables
 let accessToken: string = ''; // Access token for Spotify API
-const clientId: string = 'f26484d0771f46d1af9661203413a716'; // Replace with your Spotify client ID
-const redirectUri: string = 'http://localhost:5173/'; // Replace with your redirect URI
+export const clientId: string = 'f26484d0771f46d1af9661203413a716'; // Replace with your Spotify client ID
+export const redirectUri: string = 'http://localhost:5173/'; // Replace with your redirect URI
 const baseURL: string = 'https://api.spotify.com/v1'; // Base URL for Spotify API
 let userId: string = '';
 
 const sdk = SpotifyApi.withClientCredentials(`${clientId}`,`${accessToken}`, ["playlist-read-private", "playlist-modify-public", "playlist-read-collaborative"]);
 const Spotify = {
-  getAccessToken(): string | void {
+  getAccessToken(): string | null {
     if (accessToken) {
       return accessToken;
     }
@@ -39,10 +39,8 @@ const Spotify = {
       window.setTimeout(() => (accessToken = ''), expiresIn * 1000);
       window.history.pushState('Access Token', '', '/'); // Fixed null to empty string
       return accessToken;
-    } else {
-      const accessUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public&redirect_uri=${redirectUri}`;
-      (window.location as any) = accessUrl; // Cast to `any` to avoid type error
-    }
+    } 
+    return null;
   },
 
   async search(term: string): Promise<any[]> {
@@ -249,7 +247,13 @@ async getPlaylistId(playlist_Id: string): Promise<Track[]> {
     console.log('Error fetching playlist tracks:', error)
     return [];
   }
-}
+},
+  clearAccessToken() {
+    accessToken = '';
+  },
+  setAccessToken(token: string) {
+    accessToken = token;
+  },
 
 }
 

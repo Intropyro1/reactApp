@@ -48,7 +48,7 @@
     height: 200px;
 }
 
-.userPlaylistDisplay {
+.userLocalPlaylistDisplay {
     color: white;
     position: absolute;
     top: 595px;
@@ -57,7 +57,7 @@
     background-color: #198754;
     border-radius: 5px;
 }
-ul.userPlaylistDisplay {
+ul.userLocalPlaylistDisplay {
     list-style: none;
 }
 h2.userPlaylistDisplay {

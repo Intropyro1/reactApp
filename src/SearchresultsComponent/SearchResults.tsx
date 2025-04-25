@@ -3,11 +3,14 @@ import { Track } from "../TrackListComponent/TrackList"; // Import Track interfa
 
 interface searchResultsProps {
   tracks: Track[]; // Array of tracks to filter
-  searchTerm: string;
+  searchTerm: Track[] | string | Array<Track>; // Array of tracks to search
   onAdd: (track: Track) => void; // Callback function to add to playlist
 }
 
-const SearchResults: React.FC<searchResultsProps> = (props) => {
+const SearchResults: React.FC<searchResultsProps> = ({
+  searchTerm,
+  tracks,
+}) => {
   return (
     <div>
       <div className="card">

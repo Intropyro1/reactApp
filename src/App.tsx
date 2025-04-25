@@ -5,14 +5,13 @@ import PlaylistComponents from "./PlayListComponents/PlaylistComponents";
 import TrackDisplay from "./TrackDisplayComponent/TrackDisplay";
 import Spotify from "./SpotifyComponent/script";
 import "./App.css";
-
-import PlaylistListItem from "./playlistItemsComponent/playlistListItem";
+import { clientId, redirectUri } from "./SpotifyComponent/script";
 import PlaylistListItems, {
   Playlist,
 } from "./playlistItemsComponent/playlistListItems";
 
 interface Track {
-  id?: number | string;
+  id?: number | string | undefined;
   name: string;
   artist: string;
   album: string;
@@ -26,13 +25,64 @@ const App: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<Track[]>([]);
   const [isSectionVisible, setIsSectionVisible] = useState(true);
   const [playList, setPlaylist] = useState<Track[]>([]);
+
   const [playlistTracks, setPlaylistTracks] = useState<Track[]>([]);
   const [playlistName, setPlaylistName] = useState<string>("New Playlist");
-  const [playlistId, setPlaylistId] = useState<null | string>(null);
+  const [playlistId, setPlaylistId] = useState<number | string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  const search = useCallback((term: string) => {
-    Spotify.search(term).then(setSearchTerm);
+  const handleLogin = () => {
+    const scopes = "playlist-modify-public";
+    const accessUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=${scopes}&redirect_uri=${redirectUri}`;
+    window.location.href = accessUrl;
+  };
+  useEffect(() => {
+    try {
+      const hash = window.location.hash;
+      if (hash) {
+        const tokenMatch = hash.match(/access_token=([^&]*)/);
+        if (tokenMatch) {
+          const token = tokenMatch[1];
+          Spotify.setAccessToken(token);
+          localStorage.setItem("token", token);
+          setIsLoggedIn(true);
+          window.history.pushState(
+            "",
+            document.title,
+            window.location.pathname
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error checking access token:", error);
+      setIsLoggedIn(false);
+    }
   }, []);
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("token");
+    Spotify.clearAccessToken();
+    setPlaylist([]);
+    setSearchTerm([]);
+  };
+
+  const search = useCallback(
+    (term: string) => {
+      if (!isLoggedIn) {
+        alert("Please log in to Spotify first.");
+        return;
+      }
+      const token = Spotify.getAccessToken();
+      if (!token) {
+        alert("Please log in to Spotify first.");
+        return;
+      }
+
+      Spotify.search(term).then(setSearchTerm);
+    },
+    [isLoggedIn]
+  );
 
   useEffect(() => {
     const storedTerm = localStorage.getItem("userInput");
@@ -55,15 +105,14 @@ const App: React.FC = () => {
     setIsSectionVisible((prevState) => !prevState); // Toggle visibility
   };
 
-  const selectPlaylist = async (id: string) => {
+  const selectPlaylist = async (id: number | string) => {
     try {
-      const tracks = await Spotify.getPlaylistId(id);
+      const playlistId = String(id);
+      const tracks = await Spotify.getPlaylistId(playlistId);
       setPlaylistTracks(tracks);
       setPlaylistId(id);
 
-      const selectedPlaylist = playList.find(
-        (playList: Playlist) => playList.id === id
-      );
+      const selectedPlaylist = playList.find((playList) => playList.id === id);
       if (selectedPlaylist) {
         setPlaylistName(selectedPlaylist.name);
       }
@@ -88,7 +137,8 @@ const App: React.FC = () => {
 
   const savePlaylist = useCallback(async () => {
     const trackUris = playList.map((track) => track.uri);
-    await Spotify.savePlaylist(playlistName, trackUris, playlistId).then(() => {
+    const playListId = String(playlistId);
+    await Spotify.savePlaylist(playlistName, trackUris, playListId).then(() => {
       setPlaylistName(playlistName);
       setPlaylistTracks([]);
       setPlaylistId(null);
@@ -99,10 +149,47 @@ const App: React.FC = () => {
     setPlaylistName(e.target.value);
   };
 
+  const resultsDisplayButtonHandler = (track: Track) => {
+    if (!playList.some((addedTrack) => addedTrack.id === track.id)) {
+      setPlaylist([
+        ...playList,
+        {
+          id: track.id,
+          name: track.name,
+          artist: track.artist,
+          album: track.album,
+          uri: track.uri,
+        },
+      ]);
+      setIsSectionVisible(true);
+    } else {
+      return alert("Track exists in Playlist Already");
+    }
+  };
+
   return (
     <div className="App-display">
       <div className="searchBarSection">
         <SearchBar handleSubmit={handleSubmit} onSearch={search} />
+      </div>
+      <div className="loginSection">
+        {!isLoggedIn ? (
+          <button
+            type="button"
+            className="btn btn-outline-primary"
+            onClick={handleLogin}
+          >
+            Login to Spotify
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn btn-outline-success"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        )}
       </div>
 
       <div className="searchResultsSection">
@@ -126,25 +213,7 @@ const App: React.FC = () => {
               <button
                 className="btn btn-outline-success btn-sm"
                 type="button"
-                onClick={() => {
-                  if (
-                    !playList.some((addedTrack) => addedTrack.id === track.id)
-                  ) {
-                    setPlaylist([
-                      ...playList,
-                      {
-                        id: track.id,
-                        name: track.name,
-                        artist: track.artist,
-                        album: track.album,
-                        uri: track.uri,
-                      },
-                    ]);
-                    setIsSectionVisible(true);
-                  } else {
-                    return alert("Track exists in Playlist Already");
-                  }
-                }}
+                onClick={() => resultsDisplayButtonHandler(track)}
               >
                 +
               </button>
@@ -204,8 +273,12 @@ const App: React.FC = () => {
           </div>
         </section>
       </div>
-      <div className="userPlaylistDisplay">
-        <PlaylistListItems selectPlaylist={selectPlaylist} />
+      <div className="userLocalPlaylistDisplay">
+        {!isLoggedIn ? (
+          <p>Please log in to view your playlists.</p>
+        ) : (
+          <PlaylistListItems selectPlaylist={selectPlaylist} />
+        )}
       </div>
       <div className="trackDisplayDiv">
         {matchingTrack ? (

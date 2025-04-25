@@ -1,9 +1,9 @@
 import React from "react";
 
 interface PlaylistListItemProps {
-  id: string;
+  id: number | string;
   name?: string;
-  selectPlaylist: (id: string) => void;
+  selectPlaylist: (id: number | string) => void;
 }
 
 const PlaylistListItem: React.FC<PlaylistListItemProps> = ({

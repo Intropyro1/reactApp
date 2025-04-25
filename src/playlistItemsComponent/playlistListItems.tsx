@@ -3,12 +3,16 @@ import Spotify from "../SpotifyComponent/script";
 import PlaylistListItem from "./playlistListItem";
 
 export interface Playlist {
-  id: string;
+  id: number | string;
   name: string;
+  artist?: string;
+  album?: string;
+  uri?: string;
+  imageUrl?: string;
 }
 
 interface PlaylistItemsProps {
-  selectPlaylist: (id: string) => void; // Add selectPlaylist as a prop
+  selectPlaylist: (id: number | string) => void; // Add selectPlaylist as a prop
 }
 
 const PlaylistListItems: React.FC<PlaylistItemsProps> = ({
