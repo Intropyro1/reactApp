@@ -24,14 +24,14 @@
 }
 .playlistSection {
     position: absolute;
-    bottom: 34rem;
+    bottom: 32rem;
     height: 200px;
     margin-right: 400px;
 }
 
 .trackDisplayDiv {
     position: absolute;
-    top: 182px;
+    top: 227px;
     left: 485px;
     display: flex;
 }
@@ -52,7 +52,7 @@
     color: white;
     position: absolute;
     top: 595px;
-    left: 585px;
+    left: 58rem;
     display: flex;
     background-color: #198754;
     border-radius: 5px;
@@ -62,4 +62,7 @@ ul.userLocalPlaylistDisplay {
 }
 h2.userPlaylistDisplay {
     margin-left: 1rem;
+}
+.searchResults-display.bg-light.d-flex.justify-content-start {
+    box-shadow: 1rem -0.5rem 7px 7px green;
 }
