@@ -5,6 +5,8 @@ import PlaylistComponents from "./PlayListComponents/PlaylistComponents";
 import TrackDisplay from "./TrackDisplayComponent/TrackDisplay";
 import Spotify from "./SpotifyComponent/script";
 import "./App.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "bootstrap/dist/css/bootstrap.min.css";
 import { clientId, redirectUri } from "./SpotifyComponent/script";
 import PlaylistListItems, {
   Playlist,
@@ -25,7 +27,6 @@ const App: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<Track[]>([]);
   const [isSectionVisible, setIsSectionVisible] = useState(true);
   const [playList, setPlaylist] = useState<Track[]>([]);
-
   const [playlistTracks, setPlaylistTracks] = useState<Track[]>([]);
   const [playlistName, setPlaylistName] = useState<string>("New Playlist");
   const [playlistId, setPlaylistId] = useState<number | string | null>(null);
@@ -262,7 +263,7 @@ const App: React.FC = () => {
           >
             Add to Spotify Playlist{" "}
           </button>
-          <div className="d-flex flex-row-reverse">
+          <div className="hidePlaylistButton">
             <button
               type="button"
               onClick={toggleSectionVisibility}
@@ -284,7 +285,7 @@ const App: React.FC = () => {
         {matchingTrack ? (
           <div className="trackDisplaySection d-flex justify-content-center">
             <img
-              src={searchTerm[0]?.imageUrl || ""}
+              src={searchTerm[0]?.imageUrl || "/musicalNote.jpg"}
               alt={searchTerm[0]?.name || "Track Image"}
               className="imageDisplay"
             />

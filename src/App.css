@@ -50,9 +50,10 @@
 
 .userLocalPlaylistDisplay {
     color: white;
-    position: absolute;
-    top: 595px;
-    left: 58rem;
+    position: relative;
+    bottom: 33rem;
+    left: 35rem;
+    width: fit-content;
     display: flex;
     background-color: #198754;
     border-radius: 5px;
@@ -65,4 +66,10 @@ h2.userPlaylistDisplay {
 }
 .searchResults-display.bg-light.d-flex.justify-content-start {
     box-shadow: 1rem -0.5rem 7px 7px green;
+}
+
+div.d-flex.flex-row-reverse {
+    position: absolute;
+    top: 60rem;
+    left: 110rem;
 }
