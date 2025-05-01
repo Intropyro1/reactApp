@@ -27,6 +27,10 @@
     bottom: 32rem;
     height: 200px;
     margin-right: 400px;
+    border: solid 1rem grey;
+    box-shadow: outset 7px -9px 12px green;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
 }
 
 .trackDisplayDiv {
@@ -46,6 +50,7 @@
 .imageDisplay {
     width: 200px;
     height: 200px;
+    border-radius: 15rem;
 }
 
 .userLocalPlaylistDisplay {
