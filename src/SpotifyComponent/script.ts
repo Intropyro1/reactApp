@@ -25,7 +25,85 @@ const baseURL: string = 'https://api.spotify.com/v1'; // Base URL for Spotify AP
 let userId: string = '';
 
 const sdk = SpotifyApi.withClientCredentials(`${clientId}`,`${accessToken}`, ["playlist-read-private", "playlist-modify-public", "playlist-read-collaborative"]);
+
+
+/*Implementing the Authorization Code Flow with PKCE
+const SpotifyAuth = {
+  //Using the Authorization Code Flow with PKCE
+ 
+  generateRandomString(length: number): string {
+   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   const values = crypto.getRandomValues(new Uint8Array(length)); // Generate random values
+   return values.reduce((acc, val) => acc + characters[val % characters.length], ''); // Convert to string
+ },
+  // Generate a random string for the code challenge
+  codeVerifier(): string {
+    return this.generateRandomString(128); // Generate a random string for the code verifier
+  },
+
+  shashHash: async (plain: string): Promise<ArrayBuffer> => {
+    const encoder = new TextEncoder(); // Create a TextEncoder instance
+    const data = encoder.encode(plain); // Encode the plain string
+    return window.crypto.subtle.digest('SHA-256', data); // Hash the data using SHA-256
+  },
+  base64encode: (input: ArrayBuffer): string => {
+    return btoa(String.fromCharCode(...Array.from(new Uint8Array(input)))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_') // Convert ArrayBuffer to base64 string
+}
+};
+
+*/
+
+
+
+
+
 const Spotify = {
+/* Implementing the Authorization Code Flow with PKCE
+  generateCodeChallenge: async (): Promise<{codeVerifier: string, codeChallenge: string}> => {
+    const codeVerifier = SpotifyAuth.codeVerifier(); // Generate a random string for the code verifier
+    const hashed = await SpotifyAuth.shashHash(codeVerifier); // Hash the code verifier using SHA-256
+    const codeChallenge = SpotifyAuth.base64encode(hashed); // Convert the hashed value to base64 string
+    return { codeVerifier, codeChallenge }; // Return both code verifier and challenge
+  },
+
+  async authorizeUser(): Promise<void> {
+    const { codeVerifier, codeChallenge } = await Spotify.generateCodeChallenge(); // Generate code challenge and verifier
+    const authorizationUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&code_challenge_method=S256&code_challenge=${codeChallenge}`; // Construct the authorization URL
+    window.location.href = redirectUri; // Redirect the user to the authorization URL
+  },
+
+  async exchangeAuthorizationCode(code: string, codeVerifier: string): Promise<{access_token: string}> {
+    const tokenUrl = 'https://accounts.spotify.com/api/token'; // URL for token exchange
+    const body = new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+      client_id: clientId,
+      code_verifier: codeVerifier,
+    });
+
+    const response = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: body.toString(), // Send the request body as URL-encoded string
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to exchange authorization code for access token'); // Handle error
+    }
+
+    const data = await response.json(); // Parse the response data
+    let accessToken  = data.access_token; // Store the access token
+    console.log('Token Response:', data); // Log the token response
+    
+    return accessToken; // Return the access token data
+
+
+  },
+*/
+
   getAccessToken(): string | null {
     if (accessToken) {
       return accessToken;

@@ -11,6 +11,7 @@ import { clientId, redirectUri } from "./SpotifyComponent/script";
 import PlaylistListItems, {
   Playlist,
 } from "./playlistItemsComponent/playlistListItems";
+import LogInComponent from "./LoginButton/logInComponent";
 
 interface Track {
   id?: number | string | undefined;
@@ -66,8 +67,66 @@ const App: React.FC = () => {
     Spotify.clearAccessToken();
     setPlaylist([]);
     setSearchTerm([]);
+    window.location.href = `${redirectUri}`;
   };
+  /*
+  const directLogin = async () => {
+    try {
+      //Generating code verifier and code challenge
+      const { codeVerifier, codeChallenge } =
+        await Spotify.generateCodeChallenge();
+      // Storing code verifier in local storage
+      localStorage.setItem("code_verifier", codeVerifier);
+      //Defining Scopes to interact with Spotify API
+      const scopes = "playlist-modify-public";
+      //Generating authorization URL
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&scope=${scopes}&redirect_uri=${redirectUri}&code_challenge_method=S256&code_challenge=${codeChallenge}`;
+      //Redirecting to Spotify's authorization page
+      window.location.href = authUrl;
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
+  };
+  useEffect(() => {
+    const handleRedirect = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      if (code) {
+        try {
+          // Retrieving code verifier from local storage
+          const codeVerifier = localStorage.getItem("code_verifier");
+          if (!codeVerifier) {
+            throw new Error("Code verifier not found in local storage.");
+          }
+          //Exchanging authorization code for access token
+          const tokenResponse = await Spotify.exchangeAuthorizationCode(
+            code,
+            codeVerifier
+          );
 
+          //saving the access token in local variable
+          const token = tokenResponse.access_token;
+
+          //saving the token in local storage
+          Spotify.setAccessToken(token);
+          localStorage.setItem("token", token);
+          setIsLoggedIn(true);
+          //Clearing the URL hash to remove sensitive information
+          window.history.pushState(
+            "",
+            document.title,
+            window.location.pathname
+          );
+        } catch (error) {
+          console.error("Error during token exchange:", error);
+          setIsLoggedIn(false);
+        }
+      }
+    };
+
+    handleRedirect();
+  }, []);
+*/
   const search = useCallback(
     (term: string) => {
       if (!isLoggedIn) {
@@ -173,106 +232,28 @@ const App: React.FC = () => {
       <div className="searchBarSection">
         <SearchBar handleSubmit={handleSubmit} onSearch={search} />
       </div>
-      <div className="loginSection">
-        {!isLoggedIn ? (
-          <button
-            type="button"
-            className="btn btn-outline-primary"
-            onClick={handleLogin}
-          >
-            Login to Spotify
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="btn btn-outline-success"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
-        )}
-      </div>
-
+      <LogInComponent
+        isLoggedIn={isLoggedIn}
+        handleLogin={handleLogin}
+        handleLogout={handleLogout}
+      />
+      <hr />
       <div className="searchResultsSection">
         <SearchResults
-          searchTerm={searchTerm[0]?.name}
-          tracks={playList}
-          onAdd={addToTrack}
+          searchTerm={searchTerm}
+          onAdd={(track: Track) => resultsDisplayButtonHandler(track as Track)}
         />
       </div>
-      <hr />
-      <div className="searchResults-display bg-light d-flex justify-content-start">
-        <ul className="list-group list-group-flush">
-          {searchTerm.slice().map((track) => (
-            <li
-              id="songDisplays"
-              className="list-group-item listModifications"
-              key={track.id}
-            >
-              <strong>{track.name}</strong> by <em>{track.artist}</em> (Album:{" "}
-              {track.album})
-              <button
-                className="btn btn-outline-success btn-sm"
-                type="button"
-                onClick={() => resultsDisplayButtonHandler(track)}
-              >
-                +
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="d-flex flex-row-reverse">
-        <section className="playlistSection">
-          <PlaylistComponents
-            name={playlistName}
-            onChange={handlePlayListNameChange}
-          />
-          {isSectionVisible ? (
-            <div className="playlist-Display">
-              <ul className="list-group list-group-vertical">
-                {playList.map((track) => (
-                  <li
-                    className="list-group-item bg-success text-light"
-                    key={track.id}
-                  >
-                    {track.name} by {track.artist}
-                    <button
-                      className="btn btn-outline-danger btn-sm"
-                      type="button"
-                      onClick={() =>
-                        setPlaylist(playList.filter((a) => a.id !== track.id))
-                      }
-                    >
-                      -
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <p>Playlist is empty</p>
-          )}
-          <button
-            type="submit"
-            className="btn btn-outline-dark text-light"
-            onClick={(event) => {
-              event.preventDefault();
-              savePlaylist();
-            }}
-          >
-            Add to Spotify Playlist{" "}
-          </button>
-          <div className="hidePlaylistButton">
-            <button
-              type="button"
-              onClick={toggleSectionVisibility}
-              className="btn btn-warning"
-            >
-              {isSectionVisible ? "Hide Playlist" : "Show Playlist"}
-            </button>
-          </div>
-        </section>
+      <div className="playlistDiv">
+        <PlaylistComponents
+          name={playlistName}
+          playList={playList}
+          isSectionVisible={isSectionVisible}
+          setPlaylist={setPlaylist}
+          savePlaylist={savePlaylist}
+          toggleSectionVisibility={toggleSectionVisibility}
+          onChange={handlePlayListNameChange}
+        />
       </div>
       <div className="userLocalPlaylistDisplay">
         {!isLoggedIn ? (
