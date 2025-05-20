@@ -266,7 +266,7 @@ const App: React.FC = () => {
         {matchingTrack ? (
           <div className="trackDisplaySection d-flex justify-content-center">
             <img
-              src={searchTerm[0]?.imageUrl || "/musicalNote.jpg"}
+              src={searchTerm[0]?.imageUrl || "reactApp/public/musicalNote.jpg"}
               alt={searchTerm[0]?.name || "Track Image"}
               className="imageDisplay"
             />
