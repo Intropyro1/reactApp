@@ -43,7 +43,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useCallback, useEffect } from "react";
 import SearchBar from "./SearchBarComponents/searchBar";
 import SearchResults from "./SearchresultsComponent/SearchResults";
@@ -66,6 +66,7 @@ var App = function () {
     var _k = useState("New Playlist"), playlistName = _k[0], setPlaylistName = _k[1];
     var _l = useState(null), playlistId = _l[0], setPlaylistId = _l[1];
     var _m = useState(false), isLoggedIn = _m[0], setIsLoggedIn = _m[1];
+    var _o = useState(false), localDisplay = _o[0], setLocalDisplay = _o[1];
     var handleLogin = function () { return __awaiter(void 0, void 0, void 0, function () {
         var error_1;
         return __generator(this, function (_a) {
@@ -96,6 +97,7 @@ var App = function () {
                     // Optionally, store in localStorage for persistence
                     localStorage.setItem("access_token", token.access_token);
                     setIsLoggedIn(true);
+                    setLocalDisplay(true);
                 })
                     .catch(function (err) {
                     console.error("Token exchange failed:", err);
@@ -278,6 +280,6 @@ var App = function () {
     };
     return (_jsxs("div", { className: "App-display", children: [_jsx("div", { className: "searchBarSection", children: _jsx(SearchBar, { handleSubmit: handleSubmit, onSearch: search }) }), _jsx(LogInComponent, { isLoggedIn: isLoggedIn, handleLogin: handleLogin, handleLogout: handleLogout }), _jsx("hr", {}), _jsx("div", { className: "searchResultsSection", children: isLoggedIn ? (_jsx(SearchResults, { searchTerm: searchTerm, onAdd: function (track) {
                         return resultsDisplayButtonHandler(track);
-                    } })) : (_jsx("p", { children: "Please log into view Search Result " })) }), _jsx("div", { className: "playlistDiv", children: isLoggedIn ? (_jsx(PlaylistComponents, { name: playlistName, playList: playList, isSectionVisible: isSectionVisible, setPlaylist: setPlaylist, savePlaylist: savePlaylist, toggleSectionVisibility: toggleSectionVisibility, onChange: handlePlayListNameChange })) : (_jsx("p", { children: "Please log in to add a playlist" })) }), _jsx("div", { className: "userLocalPlaylistDisplay", children: !isLoggedIn ? (_jsx("p", { children: "Please log in to view your playlists." })) : (_jsx(PlaylistListItems, { selectPlaylist: selectPlaylist })) }), _jsx("div", { className: "trackDisplayDiv", children: matchingTrack ? (_jsxs("div", { className: "trackDisplaySection d-flex justify-content-center", children: [_jsx("img", { src: ((_a = searchTerm[0]) === null || _a === void 0 ? void 0 : _a.imageUrl) || "./assets/musicalNote", alt: ((_b = searchTerm[0]) === null || _b === void 0 ? void 0 : _b.name) || "Track Image", className: "imageDisplay" }), _jsx(TrackDisplay, { name: ((_c = searchTerm[0]) === null || _c === void 0 ? void 0 : _c.name) || "", artist: ((_d = searchTerm[0]) === null || _d === void 0 ? void 0 : _d.artist) || "", album: ((_e = searchTerm[0]) === null || _e === void 0 ? void 0 : _e.album) || "" })] })) : (_jsx("p", { children: "No matching track found." })) })] }));
+                    } })) : (_jsx("p", { children: "Please log into view Search Result " })) }), _jsx("div", { className: "playlistDiv", children: isLoggedIn ? (_jsx(PlaylistComponents, { name: playlistName, playList: playList, isSectionVisible: isSectionVisible, setPlaylist: setPlaylist, savePlaylist: savePlaylist, toggleSectionVisibility: toggleSectionVisibility, onChange: handlePlayListNameChange })) : (_jsx("p", { children: "Please log in to add a playlist" })) }), _jsx("div", { className: "userLocalPlaylistDisplay", children: !isLoggedIn ? (_jsx("p", { children: "Please log in to view your playlists." })) : (_jsx(PlaylistListItems, { selectPlaylist: selectPlaylist })) }), _jsx("div", { className: "trackDisplayDiv", children: _jsx("div", { className: "trackDisplaySection d-flex justify-content-center", children: matchingTrack && localDisplay ? (_jsxs(_Fragment, { children: [_jsx("img", { src: (_a = searchTerm[0]) === null || _a === void 0 ? void 0 : _a.imageUrl, alt: ((_b = searchTerm[0]) === null || _b === void 0 ? void 0 : _b.name) || "Track Image", className: "imageDisplay" }), _jsx(TrackDisplay, { name: ((_c = searchTerm[0]) === null || _c === void 0 ? void 0 : _c.name) || "", artist: ((_d = searchTerm[0]) === null || _d === void 0 ? void 0 : _d.artist) || "", album: ((_e = searchTerm[0]) === null || _e === void 0 ? void 0 : _e.album) || "" })] })) : (_jsxs(_Fragment, { children: [_jsx("p", { children: "No matching track found." }), _jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "40", height: "40", fill: "currentColor", className: "bi bi-music-note-beamed", viewBox: "0 0 16 16", children: [_jsx("path", { d: "M6 13c0 1.105-1.12 2-2.5 2S1 14.105 1 13s1.12-2 2.5-2 2.5.896 2.5 2m9-2c0 1.105-1.12 2-2.5 2s-2.5-.895-2.5-2 1.12-2 2.5-2 2.5.895 2.5 2" }), _jsx("path", { fillRule: "evenodd", d: "M14 11V2h1v9zM6 3v10H5V3z" }), _jsx("path", { d: "M5 2.905a1 1 0 0 1 .9-.995l8-.8a1 1 0 0 1 1.1.995V3L5 4z" })] })] })) }) })] }));
 };
 export default App;

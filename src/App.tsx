@@ -33,6 +33,7 @@ const App: React.FC = () => {
   const [playlistName, setPlaylistName] = useState<string>("New Playlist");
   const [playlistId, setPlaylistId] = useState<number | string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [localDisplay, setLocalDisplay] = useState<boolean>(false);
 
   const handleLogin = async () => {
     try {
@@ -53,6 +54,7 @@ const App: React.FC = () => {
             // Optionally, store in localStorage for persistence
             localStorage.setItem("access_token", token.access_token);
             setIsLoggedIn(true);
+            setLocalDisplay(true);
           })
           .catch((err) => {
             console.error("Token exchange failed:", err);
@@ -276,22 +278,38 @@ const App: React.FC = () => {
         )}
       </div>
       <div className="trackDisplayDiv">
-        {matchingTrack ? (
-          <div className="trackDisplaySection d-flex justify-content-center">
-            <img
-              src={searchTerm[0]?.imageUrl || "./assets/musicalNote"}
-              alt={searchTerm[0]?.name || "Track Image"}
-              className="imageDisplay"
-            />
-            <TrackDisplay
-              name={searchTerm[0]?.name || ""}
-              artist={searchTerm[0]?.artist || ""}
-              album={searchTerm[0]?.album || ""}
-            />
-          </div>
-        ) : (
-          <p>No matching track found.</p>
-        )}
+        <div className="trackDisplaySection d-flex justify-content-center">
+          {matchingTrack && localDisplay ? (
+            <>
+              <img
+                src={searchTerm[0]?.imageUrl}
+                alt={searchTerm[0]?.name || "Track Image"}
+                className="imageDisplay"
+              />
+              <TrackDisplay
+                name={searchTerm[0]?.name || ""}
+                artist={searchTerm[0]?.artist || ""}
+                album={searchTerm[0]?.album || ""}
+              />
+            </>
+          ) : (
+            <>
+              <p>No matching track found.</p>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="40"
+                height="40"
+                fill="currentColor"
+                className="bi bi-music-note-beamed"
+                viewBox="0 0 16 16"
+              >
+                <path d="M6 13c0 1.105-1.12 2-2.5 2S1 14.105 1 13s1.12-2 2.5-2 2.5.896 2.5 2m9-2c0 1.105-1.12 2-2.5 2s-2.5-.895-2.5-2 1.12-2 2.5-2 2.5.895 2.5 2" />
+                <path fillRule="evenodd" d="M14 11V2h1v9zM6 3v10H5V3z" />
+                <path d="M5 2.905a1 1 0 0 1 .9-.995l8-.8a1 1 0 0 1 1.1.995V3L5 4z" />
+              </svg>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
