@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Spotify from "../SpotifyComponent/script";
 import PlaylistListItem from "./playlistListItem";
+import "./playListItemLocal.css";
 
 export interface Playlist {
   id: number | string;
@@ -38,9 +39,9 @@ const PlaylistListItems: React.FC<PlaylistItemsProps> = ({
   }, []);
 
   return (
-    <div>
+    <div className="userPlaylistContainer">
       <h2>Local PlayLists</h2>
-      <ul>
+      <ul className="userLocalPlaylistDisplay">
         {playListlist.map((playlist) => (
           <li key={keyGen() + playlist.id}>
             <PlaylistListItem

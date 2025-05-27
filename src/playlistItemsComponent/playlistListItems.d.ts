@@ -1,4 +1,5 @@
 import React from "react";
+import "./playListItemLocal.css";
 export interface Playlist {
     id: number | string;
     name: string;

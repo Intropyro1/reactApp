@@ -27,7 +27,7 @@ let userId: string = '';
 const sdk = SpotifyApi.withClientCredentials(`${clientId}`,`${accessToken}`, ["playlist-read-private", "playlist-modify-public", "playlist-read-collaborative"]);
 
 
-/*Implementing the Authorization Code Flow with PKCE
+// Implementing the Authorization Code Flow with PKCE
 const SpotifyAuth = {
   //Using the Authorization Code Flow with PKCE
  
@@ -51,14 +51,8 @@ const SpotifyAuth = {
 }
 };
 
-*/
-
-
-
-
-
 const Spotify = {
-/* Implementing the Authorization Code Flow with PKCE
+//Implementing the Authorization Code Flow with PKCE
   generateCodeChallenge: async (): Promise<{codeVerifier: string, codeChallenge: string}> => {
     const codeVerifier = SpotifyAuth.codeVerifier(); // Generate a random string for the code verifier
     const hashed = await SpotifyAuth.shashHash(codeVerifier); // Hash the code verifier using SHA-256
@@ -66,13 +60,15 @@ const Spotify = {
     return { codeVerifier, codeChallenge }; // Return both code verifier and challenge
   },
 
-  async authorizeUser(): Promise<void> {
+  authorizeUser: async (): Promise<void> => {
     const { codeVerifier, codeChallenge } = await Spotify.generateCodeChallenge(); // Generate code challenge and verifier
-    const authorizationUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&code_challenge_method=S256&code_challenge=${codeChallenge}`; // Construct the authorization URL
-    window.location.href = redirectUri; // Redirect the user to the authorization URL
+    localStorage.setItem('code_verifier', codeVerifier);
+    const scopes = 'playlist-modify-public'
+    const authorizationUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&code_challenge_method=S256&code_challenge=${codeChallenge}`; // Construct the authorization URL
+    window.location.href = authorizationUrl; // Redirect the user to the authorization URL
   },
 
-  async exchangeAuthorizationCode(code: string, codeVerifier: string): Promise<{access_token: string}> {
+  async exchangeAuthorizationCode(code: string, codeVerifier: string): Promise<{ access_token: string}> {
     const tokenUrl = 'https://accounts.spotify.com/api/token'; // URL for token exchange
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
@@ -95,14 +91,11 @@ const Spotify = {
     }
 
     const data = await response.json(); // Parse the response data
-    let accessToken  = data.access_token; // Store the access token
-    console.log('Token Response:', data); // Log the token response
+   console.log('Token Response:', data); // Log the token response
     
-    return accessToken; // Return the access token data
-
-
+    return {access_token: data.access_token}; // Return the access token data
   },
-*/
+
 
   getAccessToken(): string | null {
     if (accessToken) {

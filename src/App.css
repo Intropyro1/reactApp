@@ -43,22 +43,6 @@
   border-radius: 15rem;
 }
 
-.userLocalPlaylistDisplay {
-  color: white;
-  position: relative;
-  bottom: 604px;
-  left: 598px;
-  width: fit-content;
-  display: flex;
-  background-color: #198754;
-  border-radius: 5px;
-}
-ul.userLocalPlaylistDisplay {
-  list-style: none;
-}
-h2.userPlaylistDisplay {
-  margin-left: 1rem;
-}
 .searchResults-display.bg-light.d-flex.justify-content-start {
   box-shadow: 1rem -0.5rem 7px 7px green;
 }

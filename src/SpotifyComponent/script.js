@@ -42,77 +42,96 @@ export var redirectUri = 'http://localhost:5173/'; // Replace with your redirect
 var baseURL = 'https://api.spotify.com/v1'; // Base URL for Spotify API
 var userId = '';
 var sdk = SpotifyApi.withClientCredentials("".concat(clientId), "".concat(accessToken), ["playlist-read-private", "playlist-modify-public", "playlist-read-collaborative"]);
-/*Implementing the Authorization Code Flow with PKCE
-const SpotifyAuth = {
-  //Using the Authorization Code Flow with PKCE
- 
-  generateRandomString(length: number): string {
-   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-   const values = crypto.getRandomValues(new Uint8Array(length)); // Generate random values
-   return values.reduce((acc, val) => acc + characters[val % characters.length], ''); // Convert to string
- },
-  // Generate a random string for the code challenge
-  codeVerifier(): string {
-    return this.generateRandomString(128); // Generate a random string for the code verifier
-  },
-
-  shashHash: async (plain: string): Promise<ArrayBuffer> => {
-    const encoder = new TextEncoder(); // Create a TextEncoder instance
-    const data = encoder.encode(plain); // Encode the plain string
-    return window.crypto.subtle.digest('SHA-256', data); // Hash the data using SHA-256
-  },
-  base64encode: (input: ArrayBuffer): string => {
-    return btoa(String.fromCharCode(...Array.from(new Uint8Array(input)))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_') // Convert ArrayBuffer to base64 string
-}
+// Implementing the Authorization Code Flow with PKCE
+var SpotifyAuth = {
+    //Using the Authorization Code Flow with PKCE
+    generateRandomString: function (length) {
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var values = crypto.getRandomValues(new Uint8Array(length)); // Generate random values
+        return values.reduce(function (acc, val) { return acc + characters[val % characters.length]; }, ''); // Convert to string
+    },
+    // Generate a random string for the code challenge
+    codeVerifier: function () {
+        return this.generateRandomString(128); // Generate a random string for the code verifier
+    },
+    shashHash: function (plain) { return __awaiter(void 0, void 0, void 0, function () {
+        var encoder, data;
+        return __generator(this, function (_a) {
+            encoder = new TextEncoder();
+            data = encoder.encode(plain);
+            return [2 /*return*/, window.crypto.subtle.digest('SHA-256', data)]; // Hash the data using SHA-256
+        });
+    }); },
+    base64encode: function (input) {
+        return btoa(String.fromCharCode.apply(String, Array.from(new Uint8Array(input)))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_'); // Convert ArrayBuffer to base64 string
+    }
 };
-
-*/
 var Spotify = {
-    /* Implementing the Authorization Code Flow with PKCE
-      generateCodeChallenge: async (): Promise<{codeVerifier: string, codeChallenge: string}> => {
-        const codeVerifier = SpotifyAuth.codeVerifier(); // Generate a random string for the code verifier
-        const hashed = await SpotifyAuth.shashHash(codeVerifier); // Hash the code verifier using SHA-256
-        const codeChallenge = SpotifyAuth.base64encode(hashed); // Convert the hashed value to base64 string
-        return { codeVerifier, codeChallenge }; // Return both code verifier and challenge
-      },
-    
-      async authorizeUser(): Promise<void> {
-        const { codeVerifier, codeChallenge } = await Spotify.generateCodeChallenge(); // Generate code challenge and verifier
-        const authorizationUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&code_challenge_method=S256&code_challenge=${codeChallenge}`; // Construct the authorization URL
-        window.location.href = redirectUri; // Redirect the user to the authorization URL
-      },
-    
-      async exchangeAuthorizationCode(code: string, codeVerifier: string): Promise<{access_token: string}> {
-        const tokenUrl = 'https://accounts.spotify.com/api/token'; // URL for token exchange
-        const body = new URLSearchParams({
-          grant_type: 'authorization_code',
-          code,
-          redirect_uri: redirectUri,
-          client_id: clientId,
-          code_verifier: codeVerifier,
+    //Implementing the Authorization Code Flow with PKCE
+    generateCodeChallenge: function () { return __awaiter(void 0, void 0, void 0, function () {
+        var codeVerifier, hashed, codeChallenge;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    codeVerifier = SpotifyAuth.codeVerifier();
+                    return [4 /*yield*/, SpotifyAuth.shashHash(codeVerifier)];
+                case 1:
+                    hashed = _a.sent();
+                    codeChallenge = SpotifyAuth.base64encode(hashed);
+                    return [2 /*return*/, { codeVerifier: codeVerifier, codeChallenge: codeChallenge }]; // Return both code verifier and challenge
+            }
         });
-    
-        const response = await fetch(tokenUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: body.toString(), // Send the request body as URL-encoded string
+    }); },
+    authorizeUser: function () { return __awaiter(void 0, void 0, void 0, function () {
+        var _a, codeVerifier, codeChallenge, scopes, authorizationUrl;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, Spotify.generateCodeChallenge()];
+                case 1:
+                    _a = _b.sent(), codeVerifier = _a.codeVerifier, codeChallenge = _a.codeChallenge;
+                    localStorage.setItem('code_verifier', codeVerifier);
+                    scopes = 'playlist-modify-public';
+                    authorizationUrl = "https://accounts.spotify.com/authorize?client_id=".concat(clientId, "&response_type=code&redirect_uri=").concat(encodeURIComponent(redirectUri), "&scope=").concat(encodeURIComponent(scopes), "&code_challenge_method=S256&code_challenge=").concat(codeChallenge);
+                    window.location.href = authorizationUrl; // Redirect the user to the authorization URL
+                    return [2 /*return*/];
+            }
         });
-    
-        if (!response.ok) {
-          throw new Error('Failed to exchange authorization code for access token'); // Handle error
-        }
-    
-        const data = await response.json(); // Parse the response data
-        let accessToken  = data.access_token; // Store the access token
-        console.log('Token Response:', data); // Log the token response
-        
-        return accessToken; // Return the access token data
-    
-    
-      },
-    */
+    }); },
+    exchangeAuthorizationCode: function (code, codeVerifier) {
+        return __awaiter(this, void 0, void 0, function () {
+            var tokenUrl, body, response, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        tokenUrl = 'https://accounts.spotify.com/api/token';
+                        body = new URLSearchParams({
+                            grant_type: 'authorization_code',
+                            code: code,
+                            redirect_uri: redirectUri,
+                            client_id: clientId,
+                            code_verifier: codeVerifier,
+                        });
+                        return [4 /*yield*/, fetch(tokenUrl, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: body.toString(), // Send the request body as URL-encoded string
+                            })];
+                    case 1:
+                        response = _a.sent();
+                        if (!response.ok) {
+                            throw new Error('Failed to exchange authorization code for access token'); // Handle error
+                        }
+                        return [4 /*yield*/, response.json()];
+                    case 2:
+                        data = _a.sent();
+                        console.log('Token Response:', data); // Log the token response
+                        return [2 /*return*/, { access_token: data.access_token }]; // Return the access token data
+                }
+            });
+        });
+    },
     getAccessToken: function () {
         if (accessToken) {
             return accessToken;

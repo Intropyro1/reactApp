@@ -1,0 +1,17 @@
+ul.userLocalPlaylistDisplay {
+  list-style: none;
+}
+h2.userPlaylistDisplay {
+  margin-left: 1rem;
+}
+
+div.userPlaylistContainer {
+  position: absolute;
+  bottom: -246px;
+  left: 549px;
+  color: white;
+  background-color: #198754;
+}
+li {
+  list-style-type: none;
+}

@@ -12,6 +12,7 @@ import PlaylistListItems, {
   Playlist,
 } from "./playlistItemsComponent/playlistListItems";
 import LogInComponent from "./LoginButton/logInComponent";
+import { error } from "console";
 
 interface Track {
   id?: number | string | undefined;
@@ -33,37 +34,39 @@ const App: React.FC = () => {
   const [playlistId, setPlaylistId] = useState<number | string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  const handleLogin = () => {
-    const scopes = "playlist-modify-public";
-    const accessUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=${scopes}&redirect_uri=${redirectUri}`;
-    window.location.href = accessUrl;
+  const handleLogin = async () => {
+    try {
+      await Spotify.authorizeUser();
+    } catch (error) {
+      console.log("failed to log into spotify");
+    }
   };
   useEffect(() => {
-    try {
-      const hash = window.location.hash;
-      if (hash) {
-        const tokenMatch = hash.match(/access_token=([^&]*)/);
-        if (tokenMatch) {
-          const token = tokenMatch[1];
-          Spotify.setAccessToken(token);
-          localStorage.setItem("token", token);
-          setIsLoggedIn(true);
-          window.history.pushState(
-            "",
-            document.title,
-            window.location.pathname
-          );
-        }
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    if (code) {
+      const codeVerifier = localStorage.getItem("code_verifier");
+      if (codeVerifier) {
+        Spotify.exchangeAuthorizationCode(code, codeVerifier)
+          .then((token) => {
+            Spotify.setAccessToken(token.access_token); // Save token for API calls
+            // Optionally, store in localStorage for persistence
+            localStorage.setItem("access_token", token.access_token);
+            setIsLoggedIn(true);
+          })
+          .catch((err) => {
+            console.error("Token exchange failed:", err);
+          });
       }
-    } catch (error) {
-      console.error("Error checking access token:", error);
-      setIsLoggedIn(false);
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem("token");
+    localStorage.removeItem("code_verifier");
     Spotify.clearAccessToken();
     setPlaylist([]);
     setSearchTerm([]);
@@ -239,21 +242,31 @@ const App: React.FC = () => {
       />
       <hr />
       <div className="searchResultsSection">
-        <SearchResults
-          searchTerm={searchTerm}
-          onAdd={(track: Track) => resultsDisplayButtonHandler(track as Track)}
-        />
+        {isLoggedIn ? (
+          <SearchResults
+            searchTerm={searchTerm}
+            onAdd={(track: Track) =>
+              resultsDisplayButtonHandler(track as Track)
+            }
+          />
+        ) : (
+          <p>Please log into view Search Result </p>
+        )}
       </div>
       <div className="playlistDiv">
-        <PlaylistComponents
-          name={playlistName}
-          playList={playList}
-          isSectionVisible={isSectionVisible}
-          setPlaylist={setPlaylist}
-          savePlaylist={savePlaylist}
-          toggleSectionVisibility={toggleSectionVisibility}
-          onChange={handlePlayListNameChange}
-        />
+        {isLoggedIn ? (
+          <PlaylistComponents
+            name={playlistName}
+            playList={playList}
+            isSectionVisible={isSectionVisible}
+            setPlaylist={setPlaylist}
+            savePlaylist={savePlaylist}
+            toggleSectionVisibility={toggleSectionVisibility}
+            onChange={handlePlayListNameChange}
+          />
+        ) : (
+          <p>Please log in to add a playlist</p>
+        )}
       </div>
       <div className="userLocalPlaylistDisplay">
         {!isLoggedIn ? (
@@ -266,7 +279,7 @@ const App: React.FC = () => {
         {matchingTrack ? (
           <div className="trackDisplaySection d-flex justify-content-center">
             <img
-              src={searchTerm[0]?.imageUrl || "reactApp/public/musicalNote.jpg"}
+              src={searchTerm[0]?.imageUrl || "./assets/musicalNote"}
               alt={searchTerm[0]?.name || "Track Image"}
               className="imageDisplay"
             />

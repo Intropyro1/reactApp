@@ -13,6 +13,14 @@ interface Track {
 export declare const clientId: string;
 export declare const redirectUri: string;
 declare const Spotify: {
+    generateCodeChallenge: () => Promise<{
+        codeVerifier: string;
+        codeChallenge: string;
+    }>;
+    authorizeUser: () => Promise<void>;
+    exchangeAuthorizationCode(code: string, codeVerifier: string): Promise<{
+        access_token: string;
+    }>;
     getAccessToken(): string | null;
     search(term: string): Promise<any[]>;
     getCurrentUserId(): Promise<string>;

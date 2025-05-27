@@ -53,7 +53,7 @@ import Spotify from "./SpotifyComponent/script";
 import "./App.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { clientId, redirectUri } from "./SpotifyComponent/script";
+import { redirectUri } from "./SpotifyComponent/script";
 import PlaylistListItems from "./playlistItemsComponent/playlistListItems";
 import LogInComponent from "./LoginButton/logInComponent";
 /*let nextId = 0; */
@@ -66,33 +66,49 @@ var App = function () {
     var _k = useState("New Playlist"), playlistName = _k[0], setPlaylistName = _k[1];
     var _l = useState(null), playlistId = _l[0], setPlaylistId = _l[1];
     var _m = useState(false), isLoggedIn = _m[0], setIsLoggedIn = _m[1];
-    var handleLogin = function () {
-        var scopes = "playlist-modify-public";
-        var accessUrl = "https://accounts.spotify.com/authorize?client_id=".concat(clientId, "&response_type=token&scope=").concat(scopes, "&redirect_uri=").concat(redirectUri);
-        window.location.href = accessUrl;
-    };
-    useEffect(function () {
-        try {
-            var hash = window.location.hash;
-            if (hash) {
-                var tokenMatch = hash.match(/access_token=([^&]*)/);
-                if (tokenMatch) {
-                    var token = tokenMatch[1];
-                    Spotify.setAccessToken(token);
-                    localStorage.setItem("token", token);
-                    setIsLoggedIn(true);
-                    window.history.pushState("", document.title, window.location.pathname);
-                }
+    var handleLogin = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, Spotify.authorizeUser()];
+                case 1:
+                    _a.sent();
+                    return [3 /*break*/, 3];
+                case 2:
+                    error_1 = _a.sent();
+                    console.log("failed to log into spotify");
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
-        }
-        catch (error) {
-            console.error("Error checking access token:", error);
-            setIsLoggedIn(false);
+        });
+    }); };
+    useEffect(function () {
+        var params = new URLSearchParams(window.location.search);
+        var code = params.get("code");
+        if (code) {
+            var codeVerifier = localStorage.getItem("code_verifier");
+            if (codeVerifier) {
+                Spotify.exchangeAuthorizationCode(code, codeVerifier)
+                    .then(function (token) {
+                    Spotify.setAccessToken(token.access_token); // Save token for API calls
+                    // Optionally, store in localStorage for persistence
+                    localStorage.setItem("access_token", token.access_token);
+                    setIsLoggedIn(true);
+                })
+                    .catch(function (err) {
+                    console.error("Token exchange failed:", err);
+                });
+            }
+            // Clean up URL
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
     }, []);
     var handleLogout = function () {
         setIsLoggedIn(false);
         localStorage.removeItem("token");
+        localStorage.removeItem("code_verifier");
         Spotify.clearAccessToken();
         setPlaylist([]);
         setSearchTerm([]);
@@ -185,7 +201,7 @@ var App = function () {
         setIsSectionVisible(function (prevState) { return !prevState; }); // Toggle visibility
     };
     var selectPlaylist = function (id) { return __awaiter(void 0, void 0, void 0, function () {
-        var playlistId_1, tracks, selectedPlaylist, error_1;
+        var playlistId_1, tracks, selectedPlaylist, error_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -202,8 +218,8 @@ var App = function () {
                     }
                     return [3 /*break*/, 3];
                 case 2:
-                    error_1 = _a.sent();
-                    console.log("Error selecting playlist:", error_1);
+                    error_2 = _a.sent();
+                    console.log("Error selecting playlist:", error_2);
                     return [3 /*break*/, 3];
                 case 3: return [2 /*return*/];
             }
@@ -260,6 +276,8 @@ var App = function () {
             return alert("Track exists in Playlist Already");
         }
     };
-    return (_jsxs("div", { className: "App-display", children: [_jsx("div", { className: "searchBarSection", children: _jsx(SearchBar, { handleSubmit: handleSubmit, onSearch: search }) }), _jsx(LogInComponent, { isLoggedIn: isLoggedIn, handleLogin: handleLogin, handleLogout: handleLogout }), _jsx("hr", {}), _jsx("div", { className: "searchResultsSection", children: _jsx(SearchResults, { searchTerm: searchTerm, onAdd: function (track) { return resultsDisplayButtonHandler(track); } }) }), _jsx("div", { className: "playlistDiv", children: _jsx(PlaylistComponents, { name: playlistName, playList: playList, isSectionVisible: isSectionVisible, setPlaylist: setPlaylist, savePlaylist: savePlaylist, toggleSectionVisibility: toggleSectionVisibility, onChange: handlePlayListNameChange }) }), _jsx("div", { className: "userLocalPlaylistDisplay", children: !isLoggedIn ? (_jsx("p", { children: "Please log in to view your playlists." })) : (_jsx(PlaylistListItems, { selectPlaylist: selectPlaylist })) }), _jsx("div", { className: "trackDisplayDiv", children: matchingTrack ? (_jsxs("div", { className: "trackDisplaySection d-flex justify-content-center", children: [_jsx("img", { src: ((_a = searchTerm[0]) === null || _a === void 0 ? void 0 : _a.imageUrl) || "reactApp/public/musicalNote.jpg", alt: ((_b = searchTerm[0]) === null || _b === void 0 ? void 0 : _b.name) || "Track Image", className: "imageDisplay" }), _jsx(TrackDisplay, { name: ((_c = searchTerm[0]) === null || _c === void 0 ? void 0 : _c.name) || "", artist: ((_d = searchTerm[0]) === null || _d === void 0 ? void 0 : _d.artist) || "", album: ((_e = searchTerm[0]) === null || _e === void 0 ? void 0 : _e.album) || "" })] })) : (_jsx("p", { children: "No matching track found." })) })] }));
+    return (_jsxs("div", { className: "App-display", children: [_jsx("div", { className: "searchBarSection", children: _jsx(SearchBar, { handleSubmit: handleSubmit, onSearch: search }) }), _jsx(LogInComponent, { isLoggedIn: isLoggedIn, handleLogin: handleLogin, handleLogout: handleLogout }), _jsx("hr", {}), _jsx("div", { className: "searchResultsSection", children: isLoggedIn ? (_jsx(SearchResults, { searchTerm: searchTerm, onAdd: function (track) {
+                        return resultsDisplayButtonHandler(track);
+                    } })) : (_jsx("p", { children: "Please log into view Search Result " })) }), _jsx("div", { className: "playlistDiv", children: isLoggedIn ? (_jsx(PlaylistComponents, { name: playlistName, playList: playList, isSectionVisible: isSectionVisible, setPlaylist: setPlaylist, savePlaylist: savePlaylist, toggleSectionVisibility: toggleSectionVisibility, onChange: handlePlayListNameChange })) : (_jsx("p", { children: "Please log in to add a playlist" })) }), _jsx("div", { className: "userLocalPlaylistDisplay", children: !isLoggedIn ? (_jsx("p", { children: "Please log in to view your playlists." })) : (_jsx(PlaylistListItems, { selectPlaylist: selectPlaylist })) }), _jsx("div", { className: "trackDisplayDiv", children: matchingTrack ? (_jsxs("div", { className: "trackDisplaySection d-flex justify-content-center", children: [_jsx("img", { src: ((_a = searchTerm[0]) === null || _a === void 0 ? void 0 : _a.imageUrl) || "./assets/musicalNote", alt: ((_b = searchTerm[0]) === null || _b === void 0 ? void 0 : _b.name) || "Track Image", className: "imageDisplay" }), _jsx(TrackDisplay, { name: ((_c = searchTerm[0]) === null || _c === void 0 ? void 0 : _c.name) || "", artist: ((_d = searchTerm[0]) === null || _d === void 0 ? void 0 : _d.artist) || "", album: ((_e = searchTerm[0]) === null || _e === void 0 ? void 0 : _e.album) || "" })] })) : (_jsx("p", { children: "No matching track found." })) })] }));
 };
 export default App;

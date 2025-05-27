@@ -38,6 +38,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useEffect, useState } from "react";
 import Spotify from "../SpotifyComponent/script";
 import PlaylistListItem from "./playlistListItem";
+import "./playListItemLocal.css";
 var PlaylistListItems = function (_a) {
     var selectPlaylist = _a.selectPlaylist;
     var _b = useState([]), playListlist = _b[0], setplayListlist = _b[1];
@@ -63,6 +64,6 @@ var PlaylistListItems = function (_a) {
         }); };
         fetchPlaylists();
     }, []);
-    return (_jsxs("div", { children: [_jsx("h2", { children: "Local PlayLists" }), _jsx("ul", { children: playListlist.map(function (playlist) { return (_jsx("li", { children: _jsx(PlaylistListItem, { id: playlist.id, name: playlist.name, selectPlaylist: selectPlaylist }) }, keyGen() + playlist.id)); }) })] }));
+    return (_jsxs("div", { className: "userPlaylistContainer", children: [_jsx("h2", { children: "Local PlayLists" }), _jsx("ul", { className: "userLocalPlaylistDisplay", children: playListlist.map(function (playlist) { return (_jsx("li", { children: _jsx(PlaylistListItem, { id: playlist.id, name: playlist.name, selectPlaylist: selectPlaylist }) }, keyGen() + playlist.id)); }) })] }));
 };
 export default PlaylistListItems;
