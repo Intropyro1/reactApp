@@ -91,7 +91,7 @@ const Spotify = {
     }
 
     const data = await response.json(); // Parse the response data
-   console.log('Token Response:', data); // Log the token response
+   //console.log('Token Response:', data); // Log the token response because i wasnt sure what the response was like.
     
     return {access_token: data.access_token}; // Return the access token data
   },
